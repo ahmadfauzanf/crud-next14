@@ -7,7 +7,7 @@ env:
 on:
   push:
     branches:
-    - main
+    - master
 
 jobs:
   Deploy-Production:
@@ -19,15 +19,6 @@ jobs:
     - name: Install Vercel CLI
       run: npm install --global vercel
 
-    - name: Pull Vercel Environment Information
-      run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-
-    - name: Build Project Artifacts
-      run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-
-    - name: Deploy Project Artifacts
-      run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
-    
     - name: Generate Prisma client
       run: npx prisma generate
 
@@ -35,3 +26,9 @@ jobs:
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
       run: npx prisma migrate deploy
+
+    - name: Build Project Artifacts
+      run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+    - name: Deploy Project Artifacts
+      run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}

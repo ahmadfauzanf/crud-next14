@@ -1,36 +1,52 @@
 import { NextResponse } from "next/server";
-import { PrismaClient, Product } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 
-const prisma = new PrismaClient();
-
-// Handler for DELETE method
-export const DELETE = async (request: Request, { params }: { params: { id: string } }) => {
-  try {
-    const product = await prisma.product.delete({
-      where: { id: Number(params.id) },
-    });
-    return NextResponse.json(product, { status: 200 });
-  } catch (error) {
-    return NextResponse.json({ error: "Product deletion failed" }, { status: 500 });
+// Handler untuk DELETE request
+export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+  const id = params.id; // Pastikan id diambil dari params
+  if (!id) {
+    return NextResponse.json({ error: "Product ID is required" }, { status: 400 });
   }
-};
 
-// Optional: Handle other HTTP methods (e.g., GET, POST)
-export function GET() {
-  return NextResponse.json({ message: "Only DELETE method is allowed" }, { status: 405 });
+  try {
+    await prisma.product.delete({
+      where: { id: Number(id) },
+    });
+    // Gunakan NextResponse tanpa .json() untuk status 204
+    return new NextResponse(null, { status: 204 });
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    return NextResponse.json({ error: "Failed to delete product" }, { status: 500 });
+  }
 }
 
+// Handler untuk PATCH request
+export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+  const id = params.id;
+  if (!id) {
+    return NextResponse.json({ error: "Product ID is required" }, { status: 400 });
+  }
 
-export const PATCH = async(request: Request, { params }: { params: { id: string } }) => {
-  const body: Product = await request.json();
-  const product = await prisma.product.update({
-    where: { id: Number(params.id) },
-    data:{
-      title: body.title,
-      price: body.price,
-      brandId: body.brandId
-    } 
+  try {
+    const data = await request.json();
+    const { title, price, brandId } = data;
+
+    if (!title || !price || !brandId) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    const updatedProduct = await prisma.product.update({
+      where: { id: Number(id) },
+      data: {
+        title,
+        price,
+        brandId: Number(brandId),
+      },
     });
-    return NextResponse.json(product,{ status:200 });
 
+    return NextResponse.json(updatedProduct, { status: 200 });
+  } catch (error) {
+    console.error("Error updating product:", error);
+    return NextResponse.json({ error: "Failed to update product" }, { status: 500 });
+  }
 }

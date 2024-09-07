@@ -1,47 +1,39 @@
-import { PrismaClient } from "@prisma/client";
-import AddProduct from "./addProduct";
-import DeleteProduct from "./deleteproduct";
-import UpdateProduct from "./updateProduct";
-import React from 'react';
+import AddProduct from "@/app/components/addProduct";
+import DeleteProduct from "@/app/components/deleteproduct";
+import UpdateProduct from "@/app/components/updateProduct";
+import { prisma } from "@/lib/prisma";
 
-const prisma = new PrismaClient();
+type Product = {
+  id: number;
+  title: string;
+  price: number;
+  brandId: number;
+  brand: { name: string };
+};
+
+type Brand = {
+  id: number;
+  name: string;
+};
 
 const getProducts = async () => {
-  try {
-    const res = await prisma.product.findMany({
-      select: {
-        id: true,
-        title: true,
-        price: true,
-        brandId: true,
-        brand: true,
-      },
-    });
-    return res;
-  } catch (error) {
-    console.error("Error fetching products:", error);
-    return [];
-  }
+  const products = await prisma.product.findMany({
+    include: { brand: true },
+  });
+  return products;
 };
 
-const GetBrands = async () => {
-  try {
-    const res = await prisma.brand.findMany();
-    return res;
-  } catch (error) {
-    console.error("Error fetching brands:", error);
-    return [];
-  }
+const getBrands = async () => {
+  const brands = await prisma.brand.findMany();
+  return brands;
 };
 
-const Product = async () => {
-  const [products, brands] = await Promise.all([getProducts(), GetBrands()]);
+const ProductPage = async () => {
+  const [products, brands] = await Promise.all([getProducts(), getBrands()]);
 
   return (
     <div>
-      <div className="mb-2">
-        <AddProduct brands={brands} />
-      </div>
+      <AddProduct brands={brands} />
       <table className="table w-full">
         <thead>
           <tr>
@@ -49,7 +41,7 @@ const Product = async () => {
             <th>Product Name</th>
             <th>Price</th>
             <th>Brand</th>
-            <th className="text-center">Actions</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -59,7 +51,7 @@ const Product = async () => {
               <td>{product.title}</td>
               <td>{product.price}</td>
               <td>{product.brand.name}</td>
-              <td className="flex justify-center space-x-1">
+              <td>
                 <UpdateProduct brands={brands} product={product} />
                 <DeleteProduct product={product} />
               </td>
@@ -71,4 +63,4 @@ const Product = async () => {
   );
 };
 
-export default Product;
+export default ProductPage;

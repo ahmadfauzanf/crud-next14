@@ -7,7 +7,7 @@ type Product = {
     id: number;
     title: string;
     price: number;
-    brandId: number;
+    brandId: number; // Pastikan ada di tipe Product
 };
 
 const DeleteProduct = ({ product }: { product: Product }) => {
@@ -24,7 +24,7 @@ const DeleteProduct = ({ product }: { product: Product }) => {
 
     const handleModal = () => {
         setIsOpen(!isOpen);
-    }
+    };
 
     return (
         <div>

@@ -4,81 +4,98 @@ import type { Brand } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 
-const AddProduct = ({brands}:{brands:Brand[]}) => {
-    const [title,setTitle] = useState("");
-    const [price,setPrice] = useState("");
-    const [brand,setBrand] = useState("");
-    const [isOpen,setIsOpen] = useState(false);
+const AddProduct = ({ brands }: { brands: Brand[] }) => {
+  const [title, setTitle] = useState("");
+  const [price, setPrice] = useState("");
+  const [brand, setBrand] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
 
-const router = useRouter();
+  const router = useRouter();
 
-    const handleSubmit=async (e:SyntheticEvent)=>{
-        e.preventDefault(); 
-        await axios.post('/api/products',{
-                title: title,
-                price: Number(price),
-                brandId: Number(brand)
-        })
-        setTitle("");
-        setPrice("");
-        setBrand("");
-        router.refresh();
-        setIsOpen(false);   
-    };
+  const handleSubmit = async (e: SyntheticEvent) => {
+    e.preventDefault();
 
-    const handleModal = () =>{
-        setIsOpen(!isOpen);
+    const parsedPrice = parseFloat(price);
+    const parsedBrand = Number(brand);
+
+    // Validasi input
+    if (!title || isNaN(parsedPrice) || parsedPrice <= 0 || isNaN(parsedBrand) || parsedBrand <= 0) {
+      console.error("Invalid input");
+      return;
     }
-        return(
-       <div>
-            <button className="btn" onClick={handleModal}>Add New</button>
 
-        <div className={isOpen ? 'modal modal-open' : 'modal'}>
-            <div className="modal-box">
-                <h3 className="font-bold text-lg">Add New Product</h3>
-                <form onSubmit={handleSubmit}>
-                    <div className="form-control w-full">
-                        <label className="label font-bold">Product Name</label>
-                        <input 
-                            type="text" 
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            className="input input-bordered" 
-                            placeholder="Product Name"/>
-                    </div>
+    try {
+      await axios.post('/api/products', {
+        title,
+        price: parsedPrice,
+        brandId: parsedBrand,
+      });
+      setTitle("");
+      setPrice("");
+      setBrand("");
+      router.refresh();
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Error adding product:", error);
+    }
+  };
 
-                    <div className="form-control w-full">
-                        <label className="label font-bold">Product Price</label>
-                        <input type="text"   
-                            value={price}
-                            onChange={(e) => setPrice(e.target.value)}
-                            className="input input-bordered" 
-                            placeholder="Product Price"/>
-                    </div>
+  const handleModal = () => {
+    setIsOpen(!isOpen);
+  };
 
-                    <div className="form-control w-full">
-                        <label className="label font-bold">Brand</label>
-                    <select   value={brand}
-                    onChange={(e) => setBrand(e.target.value)} className="select select-bordered">
-                  
-                        <option value="" disabled>Select a Brand</option>
+  return (
+    <div>
+      <button className="btn" onClick={handleModal}>Add New</button>
 
-                        {brands.map((brand) => (
-                            <option value={brand.id} key={brand.id}>{brand.name}</option>
-                        ))}
-
-                     
-                        </select>
-                    </div>
-                    <div className="modal-action">
-                        <button type="button"className="btn" onClick={handleModal}>Close</button>
-                        <button type="submit"className="btn btn-primary">Save</button>
-                    </div>
-                </form>
+      <div className={isOpen ? 'modal modal-open' : 'modal'}>
+        <div className="modal-box">
+          <h3 className="font-bold text-lg">Add New Product</h3>
+          <form onSubmit={handleSubmit}>
+            <div className="form-control w-full">
+              <label className="label font-bold">Product Name</label>
+              <input 
+                type="text" 
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="input input-bordered" 
+                placeholder="Product Name"
+              />
             </div>
+
+            <div className="form-control w-full">
+              <label className="label font-bold">Product Price</label>
+              <input 
+                type="text"   
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                className="input input-bordered" 
+                placeholder="Product Price"
+              />
+            </div>
+
+            <div className="form-control w-full">
+              <label className="label font-bold">Brand</label>
+              <select 
+                value={brand}
+                onChange={(e) => setBrand(e.target.value)} 
+                className="select select-bordered"
+              >
+                <option value="" disabled>Select a Brand</option>
+                {brands.map((brand) => (
+                  <option value={brand.id} key={brand.id}>{brand.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="modal-action">
+              <button type="button" className="btn" onClick={handleModal}>Close</button>
+              <button type="submit" className="btn btn-primary">Save</button>
+            </div>
+          </form>
         </div>
+      </div>
     </div>
-        
-        );
-    };
-    export default AddProduct;
+  );
+};
+
+export default AddProduct;

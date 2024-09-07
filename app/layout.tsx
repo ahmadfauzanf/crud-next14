@@ -1,10 +1,17 @@
-import './globals.css'; 
-export const metadata ={
-    title: "Products",
+import './globals.css';
+
+export const metadata = {
+  title: "Products",
 };
 
-const ProductLayout =   ({children}: {children: React.ReactNode}) => {
-    return  <div className="py-10 px-10">{children}</div>;
+const ProductLayout = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <html lang="en">
+      <body className="py-10 px-10">
+        {children}
+      </body>
+    </html>
+  );
 };
 
 export default ProductLayout;

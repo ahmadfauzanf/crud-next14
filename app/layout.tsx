@@ -1,7 +1,7 @@
 import './globals.css';
 
 export const metadata = {
-  title: "Aplikasi Products",
+  title: "Products",
 };
 
 const ProductLayout = ({ children }: { children: React.ReactNode }) => {

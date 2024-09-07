@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import AddProduct from "./addProduct"
 import DeleteProduct from "./deleteproduct";
+import React from 'react';
 import UpdateProduct from "./updateProduct";
 const prisma = new PrismaClient();
 
